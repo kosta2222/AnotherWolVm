@@ -24,7 +24,7 @@ class FunctionObject:
 
   nargs:int=0
 
-  def initFunc(self,by_co_body,nargs,sec=PRIVATE):
+  def __init__(self,by_co_body,nargs,sec=PRIVATE):
 
      self.security=sec
      self.by_co=by_co_body
@@ -58,7 +58,7 @@ class Vm:
   
   def execute(self,b_c:list):
 
-    functions={}
+    self.functions={}
     self.loadStack=Stack()
     ip=0
     
@@ -93,7 +93,11 @@ class Vm:
          ip+=1
          arg=b_c[ip]
          self.loadStack.pushInt(arg)
-         
+      
+      elif op==make_function:
+         func_obj=FunctionObject(self.loadStack.popBytecode(),self.loadStack.popInt(),PUBLIC)
+         self.functions[self.loadStack.popStrValue()]=func_obj
+         print('functions:',str(self.functions))
       elif op==end_file_startMain:
           break
 #--------------------------------------------
@@ -102,10 +106,7 @@ class Vm:
       elif op==iconst:
          ip+=1
          arg=b_c[ip] 
-      ip+=1
-            
-
-
+      ip+=1                      
 
 #===========================
 version ="1.0.0"
@@ -122,6 +123,7 @@ if __name__=='__main__':
 
       vm=Vm(sys.argv[1])
       vm.execute(vm.bytecode)
+      print(vm)
 
 #================================= 
 
