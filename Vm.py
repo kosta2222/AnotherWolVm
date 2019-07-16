@@ -36,7 +36,7 @@ class Vm:
 
       load_name,0,"main",
       iconstNumArgs,0,
-      load_bytecode,5,iconst,5,iload,1,return_,
+      load_bytecode,8,iconst,5,iconst,4,iadd,iload,1,return_,
       make_function,
 
       load_name,0,"sum_func",
@@ -49,10 +49,9 @@ class Vm:
 
          #bytecode=f.read()
      pass
-
+     self.frame=None 
       
-  def __str__(self):
-     return 'FrameStack of fu:'+str(self.frame.stack) 
+
   
   def execute(self,stackFrame:list,b_c:list):
     frame=None 
@@ -113,28 +112,35 @@ class Vm:
              currentFrame=Frame(10,funcObject.nargs)
              stackFrame.append(currentFrame)
              print('stack Frame:',str(stackFrame))
-             ip=0
              self.execute(stackFrame,by_co)
           except Exception :
              raise VmException("Main method not found")
           break
 #--------------------------------------------
 
-#--------------------------------------------about inner bytecode
+#********************************************about inner bytecode
+#--------------------------------------------
       elif op==iconst:
          ip+=1
          arg=b_c[ip] 
          frame.stack.pushInt(arg)
-         #print('-1 frame',frame)
-         #self.stackFrame[-1].stack.pushInt(arg)
-         #print('function stack:',self.functionStack.popInt())
+#--------------------------------------------
+#--------------------------------------------Arifmetic ops
+      elif op==iadd:
+         frame.stack.pushInt(frame.stack.popInt()+frame.stack.popInt())
+#--------------------------------------------
+      
+         
       elif op==iload:
          ip+=1
          arg=b_c[ip]
       elif op==return_:
          print('ret')
          break
-      ip+=1                      
+#***************************************************      
+      ip+=1 
+  def __str__(self):
+     return 'FrameStack of fu:'+str(self.frame.stack)       
 
 #===========================
 version ="1.0.0"

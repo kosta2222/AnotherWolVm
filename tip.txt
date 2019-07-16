@@ -193,3 +193,26 @@ System
 sum_func
 [5, 4, 0, 5, 1]
 sum_func
+===========================
+elif mas_I_Or_Str[0] == 'defun': #определить функцию 
+        self.nCountMethods+=1
+        (_,str_nameFunc, list_arg,body_expr) = mas_I_Or_Str
+        argStrLen=len(str_nameFunc) + 1 # + 1 для 0-завершителя строки
+        self.me_gen_byteCode_SIrV(argStrLen)
+        byteArrStr=bytearray(str_nameFunc,'cp1251')
+        for i in byteArrStr:
+            self.me_gen_byteCode_SIrV(i)
+            
+        self.me_gen_byteCode_SIrV(0) # 0 - завершитель строки
+        
+        self.me_gen_byteCode_SIrV(0)
+        self.me_gen_byteCode_SIrV(0)
+        nAddr1=len(self.fi_mas_I_byteCode)
+        self.me_recurs_evalPerList_SMrV(list_arg)    
+        self.me_recurs_evalPerList_SMrV(body_expr) 
+        if str_nameFunc=='main':
+            self.me_gen_byteCode_SIrV(STOP)
+        nByteCodeMethodLen=len(self.fi_mas_I_byteCode)-(nAddr1)
+        
+        self.fi_mas_I_byteCode[nAddr1-2]=shortToBytes_SintRbytes(nByteCodeMethodLen)[0]
+        self.fi_mas_I_byteCode[nAddr1-1]=shortToBytes_SintRbytes(nByteCodeMethodLen)[1]        
