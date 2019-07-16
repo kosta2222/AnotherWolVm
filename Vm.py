@@ -1,6 +1,8 @@
 import sys 
 from stack import Stack
 from constants import *
+from vmException import VmException
+
 
 class langClass:
  
@@ -36,7 +38,7 @@ class Vm:
       load_name,0,"System",
       loads,
 
-      load_name,0,"sum_func",
+      load_name,0,"main",
       iconstNumArgs,0,
       load_bytecode,5,iconst,0,iload,1,returnVoid,
       make_function,
@@ -99,6 +101,12 @@ class Vm:
          self.functions[self.loadStack.popStrValue()]=func_obj
          print('functions:',str(self.functions))
       elif op==end_file_startMain:
+          try:
+             funcObject=self.functions.get('main')
+             by_co=funcObject.by_co
+             print('bytecode main',by_co)
+          except Exception :
+             raise VmException("Main method not found")
           break
 #--------------------------------------------
 
