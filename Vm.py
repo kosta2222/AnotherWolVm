@@ -1,6 +1,9 @@
 import sys 
 from stack import Stack
+from localss import Locals
+from variable import Variable
 from constants import *
+from functionObject import FunctionObject
 from vmException import VmException
 
 
@@ -19,19 +22,12 @@ class langClass:
 
        self.classType:int=DEFAULT
 
-class FunctionObject:
-  
-  by_co:list=[]
-  security:int=PRIVATE # для классов открытый по умолчанию
-
-  nargs:int=0
-
-  def __init__(self,by_co_body,nargs,sec=PRIVATE):
-
-     self.security=sec
-     self.by_co=by_co_body
-     self.nargs=nargs
-     
+class Frame:
+   def __init__(self,amountLocals,nargs):
+      self.stack=Stack()
+      self.locals_=Locals(amountLocals)
+      self.returnValue=Variable()
+      
 
 class Vm:
   bytecode=[
@@ -40,7 +36,7 @@ class Vm:
 
       load_name,0,"main",
       iconstNumArgs,0,
-      load_bytecode,5,iconst,0,iload,1,returnVoid,
+      load_bytecode,5,iconst,5,iload,1,return_,
       make_function,
 
       load_name,0,"sum_func",
@@ -56,12 +52,20 @@ class Vm:
 
       
   def __str__(self):
-     return 'Top of Vm loadStack:'+str(self.loadStack) 
+     return 'FrameStack of fu:'+str(self.frame.stack) 
   
-  def execute(self,b_c:list):
+  def execute(self,stackFrame:list,b_c:list):
+    frame=None 
+    if(stackFrame!=None):
+        frame=stackFrame[-1]
+        print('begin St Fr',stackFrame)
+        print('frame',frame)
+        print('begi b_c',b_c)
+        self.frame=frame
 
-    self.functions={}
-    self.loadStack=Stack()
+    functions={}       #  functions=map<str,FunctionObject>
+    loadStack=Stack()  #  loadStack=vector<Variable>
+    stackFrame=[]      #  stackFrame=vector<Frame>
     ip=0
     
     b_c_par=[]
@@ -69,6 +73,7 @@ class Vm:
     
     while(True):
       op=b_c[ip]
+      print(op)
 #--------------------------------# about load classes/functions    
       if op==load_bytecode:
         ip+=1
@@ -78,7 +83,7 @@ class Vm:
            b_c_par.append(b_c[ip+i])
        
         print(b_c_par)
-        self.loadStack.pushBytecode(b_c_par)
+        loadStack.pushBytecode(b_c_par) 
         ip+=amount_b_c
       if op==load_name:
         ip+=1
@@ -89,22 +94,27 @@ class Vm:
        
         print(str_par)
 
-        self.loadStack.pushStrValue(str_par)
+        loadStack.pushStrValue(str_par)
         
       elif op==iconstNumArgs:
          ip+=1
          arg=b_c[ip]
-         self.loadStack.pushInt(arg)
+         loadStack.pushInt(arg)
       
       elif op==make_function:
-         func_obj=FunctionObject(self.loadStack.popBytecode(),self.loadStack.popInt(),PUBLIC)
-         self.functions[self.loadStack.popStrValue()]=func_obj
-         print('functions:',str(self.functions))
+         func_obj=FunctionObject(loadStack.popBytecode(),loadStack.popInt(),PUBLIC)
+         functions[loadStack.popStrValue()]=func_obj
+         print('functions:',str(functions))
       elif op==end_file_startMain:
           try:
-             funcObject=self.functions.get('main')
+             funcObject=functions.get('main')
              by_co=funcObject.by_co
              print('bytecode main',by_co)
+             currentFrame=Frame(10,funcObject.nargs)
+             stackFrame.append(currentFrame)
+             print('stack Frame:',str(stackFrame))
+             ip=0
+             self.execute(stackFrame,by_co)
           except Exception :
              raise VmException("Main method not found")
           break
@@ -114,6 +124,16 @@ class Vm:
       elif op==iconst:
          ip+=1
          arg=b_c[ip] 
+         frame.stack.pushInt(arg)
+         #print('-1 frame',frame)
+         #self.stackFrame[-1].stack.pushInt(arg)
+         #print('function stack:',self.functionStack.popInt())
+      elif op==iload:
+         ip+=1
+         arg=b_c[ip]
+      elif op==return_:
+         print('ret')
+         break
       ip+=1                      
 
 #===========================
@@ -130,7 +150,7 @@ if __name__=='__main__':
       #programFileName=sys.argv[1]
 
       vm=Vm(sys.argv[1])
-      vm.execute(vm.bytecode)
+      vm.execute(None,vm.bytecode)
       print(vm)
 
 #================================= 

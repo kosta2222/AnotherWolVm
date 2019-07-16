@@ -1,3 +1,4 @@
+from variable import Variable
 class Locals:
 
     def __init__(self,amount):

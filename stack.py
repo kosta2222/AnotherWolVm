@@ -44,9 +44,11 @@ class Stack:
         return self.mas.pop().bytecode 
 
     def __str__(self):
-        topVar:Variable=self.mas[-1]
+        str_vals='' 
+        if len(self.mas)>0:
+          topVar:Variable=self.mas[-1]
 
-        str_vals='int Val:'+str(topVar.intValue)+'\nfloat Val:'+str(topVar.floatValue)+'\nchar Val:'+str(topVar.charValue)+\
-        '\nstr Val:'+str(topVar.strValue)+'\nbytecode Val'+str(topVar.bytecode)
+          str_vals='int Val:'+str(topVar.intValue)+'\nfloat Val:'+str(topVar.floatValue)+'\nchar Val:'+str(topVar.charValue)+\
+          '\nstr Val:'+str(topVar.strValue)+'\nbytecode Val'+str(topVar.bytecode)
 
         return 'Top of Stack:'+ str_vals
